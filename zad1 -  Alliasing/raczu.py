@@ -12,26 +12,31 @@ from matplotlib.image import AxesImage
 from typing import List, Tuple
 from copy import deepcopy
 
+# raczu https://github.com/raczu/image-processing/tree/main
+
 # Setup
 SENSOR = 256
 M = 64
 
-# Generating propellers in polar coordinates
-def propeller_polar(blades: int, theta: np.array, m: float) -> np.array:
-    r = np.sin(blades * theta + ((m * np.pi) / 10))
-    return r
+# Generating propellers
+def propeller(blades: int, x: float, m: float) -> float:
+    return np.sin(blades * x + ((m * np.pi) / 10))
 
-def get_data_polar(blades: int) -> np.array:
-    theta = np.linspace(0, 2 * np.pi, SENSOR)
+
+def get_data(blades: int) -> np.array:
+    rads = np.arange(0, 2 * np.pi, 0.01)
     ms = np.linspace(-M / 2, M / 2 ,M )
 
     return np.array(
-        [[propeller_polar(blades, x, m) for x in theta] for m in ms])
+        [[[propeller(blades, x, m) * np.cos(x) * ((SENSOR // 2) - 6) + (SENSOR // 2) for x in rads],
+          [propeller(blades, x, m) * np.sin(x) * ((SENSOR // 2) - 6) + (SENSOR // 2) for x in rads]] for m in ms])
 
-def update_polar(frame: int, prop: Line2D, prop_data: np.array) -> Line2D:
-    prop.set_data(np.linspace(0, 2 * np.pi, SENSOR), prop_data[frame])
+
+def update(frame: int, prop: Line2D, prop_data: np.array) -> Line2D:
+    prop.set_data(prop_data[frame][0], prop_data[frame][1])
 
     return prop
+
 
 def get_shuttered_prop_data(video: cv2.VideoCapture, lines: int) -> Tuple[List[np.array], List[np.array]]:
     shutter_data = list()
@@ -55,6 +60,20 @@ def get_shuttered_prop_data(video: cv2.VideoCapture, lines: int) -> Tuple[List[n
     video.release()
 
     return prop_data, shutter_data
+
+
+def animate(frame: int, prop: AxesImage, shuttered_prop: AxesImage, data: Tuple[np.array, List[np.array]],
+            lines: Tuple[Line2D, Line2D], nlines: int) -> Tuple[AxesImage, AxesImage, Line2D, Line2D]:
+    prop_data, shuttered_prop_data = data
+    l1, l2 = lines
+
+    l1.set_ydata(SENSOR - frame * nlines)
+    prop.set_data(prop_data[frame])
+    l2.set_ydata(SENSOR - frame * nlines)
+    shuttered_prop.set_data(shuttered_prop_data[frame])
+
+    return prop, shuttered_prop, l1, l2
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -84,23 +103,56 @@ def main() -> None:
     if args.blades not in (1,2,3, 5):
         raise ValueError('Number of propeller blades should be equal to 3 or 5!')
 
-    prop_data = get_data_polar(args.blades)
+    prop_data = get_data(args.blades)
 
     fig = plt.figure(figsize=(SENSOR / 100, SENSOR / 100), dpi=100)
-    ax = fig.add_subplot(111, projection='polar')
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_xlim(0, SENSOR)
     ax.set_ylim(0, SENSOR)
     ax.set_axis_off()
+    fig.add_axes(ax)
 
-    prop, = ax.plot(np.linspace(0, 2 * np.pi, SENSOR), prop_data[0])
+    prop, = plt.plot(prop_data[0][0], prop_data[0][1])
 
-    # Propeller animation
-    animation = FuncAnimation(fig, update_polar, frames=M, fargs=(prop, prop_data), interval=M)
+    # Propeler animation
+    animation = FuncAnimation(fig, update, frames=M, fargs=(prop, prop_data), interval=M)
     mkdir('./tmp') if not isdir('./tmp') else None
     animation.save('./tmp/propeller.gif', PillowWriter(fps=30))
     propeller_animation = cv2.VideoCapture('./tmp/propeller.gif')
 
     prop_data, shuttered_prop_data = get_shuttered_prop_data(propeller_animation, args.lines)
     rmtree('./tmp') if isdir('./tmp') else None
+
+    plt.close(fig)
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+
+    # sensor line setup
+    axes[0].set_xlim(0, SENSOR)
+    axes[0].set_ylim(0, SENSOR)
+    axes[0].set_xticks([])
+    axes[0].set_yticks([])
+    axes[0].set_title('PROPELLER ANIMATION')
+    l1 = axes[0].axhline(y=SENSOR, xmin=0, xmax=SENSOR, lw=1, color='black')
+    prop = axes[0].imshow(prop_data[0])
+    # sensor second line setup
+    axes[1].set_xlim(0, SENSOR)
+    axes[1].set_ylim(0, SENSOR)
+    axes[1].set_xticks([])
+    axes[1].set_yticks([])
+    axes[1].set_title('ROLLING SHUTTER EFFECT SIMULATION')
+    l2 = axes[1].axhline(y=SENSOR, xmin=0, xmax=SENSOR, lw=1, color='red')
+    shuttered_prop = axes[1].imshow(shuttered_prop_data[0])
+
+    # shuttered annimation
+    animation = FuncAnimation(fig, animate, frames=len(shuttered_prop_data),
+                              fargs=(prop, shuttered_prop, (prop_data, shuttered_prop_data),
+                                     (l1, l2), args.lines), interval=100)
+
+    mkdir('assets') if args.save and not isdir('assets') else None
+    animation.save('./assets/rolling-shutter-simulation.gif', PillowWriter(fps=30))
+
+    plt.show()
+
 
 if __name__ == '__main__':
     main()

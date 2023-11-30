@@ -5,6 +5,8 @@ from matplotlib.animation import PillowWriter
 import math
 from PIL import Image, ImageSequence
 
+#Notion
+
 
 def make_animation():
     # First set up the figure, the axis, and the plot element we want to animate

@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from PIL import Image
 
+#NOTION
+
 n = 5 # ĹmigĹa
 L = 8  # linie
 j = 0

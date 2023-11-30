@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as ani
 from PIL import Image
 
+# NOTION
+
 res = 256 / 96 * 2  # resolution
 M = 64  # frames in one circle of animation
 L = 2  # amount of layers divided by 2
