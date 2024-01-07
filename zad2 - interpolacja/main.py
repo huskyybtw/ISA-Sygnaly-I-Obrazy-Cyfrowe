@@ -3,8 +3,8 @@ import time
 import os
 
 # Stałe dla skalowania i obrotu
-SCALE_FACTOR = 3  # Przykładowa wartość, możesz ją zmienić
-ROTATION_ANGLE = 0  # Przykładowa wartość, możesz ją zmienić
+SCALE_FACTOR = 3
+ROTATION_ANGLE = 0
 
 # Folder do zapisywania obrazów
 OUTPUT_FOLDER = 'processed_images'

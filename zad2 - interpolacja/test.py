@@ -3,8 +3,8 @@ import time
 import os
 
 # Stałe dla skalowania i obrotu
-SCALE_FACTOR = 1.5  # Przykładowa wartość, możesz ją zmienić
-ROTATION_ANGLE = 0 # Przykładowa wartość, możesz ją zmienić
+SCALE_FACTOR = 1.5
+ROTATION_ANGLE = 0
 
 # Typ interpolacji: cv2.INTER_LINEAR, cv2.INTER_CUBIC, cv2.INTER_NEAREST
 INTERPOLATION_METHOD = cv2.INTER_NEAREST
