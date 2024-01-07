@@ -1,6 +1,7 @@
 import cv2
 import time
 import os
+#Wykonuje operacje na obrazie wybranym typem interpolacji
 
 # Stałe dla skalowania i obrotu
 SCALE_FACTOR = 1.5
