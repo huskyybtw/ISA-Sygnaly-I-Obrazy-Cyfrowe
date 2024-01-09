@@ -2,6 +2,14 @@ import math
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
+def save_image():
+    global scaled_image
+    # Prośba o wybranie ścieżki i nazwy pliku do zapisu
+    file_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG files", "*.png"), ("JPEG files", "*.jpg"), ("All files", "*.*")])
+    if file_path:
+        # Zapisywanie obrazu
+        scaled_image.save(file_path)
+        print(f"Obraz zapisany jako: {file_path}")
 
 def load_image():
     global original_image, tk_original_image
@@ -13,13 +21,13 @@ def load_image():
     update_image()  # Update the processed image view
 
 def update_image():
+    global scaled_image
     scale_factor = scale_slider.get()
     rotation_angle = rotation_slider.get()
     rotated_image = rotate_image(original_image, rotation_angle)
     scaled_image = scale_nearest_neighbor(rotated_image, scale_factor)
     tk_rotated_image = ImageTk.PhotoImage(scaled_image)
 
-    # Dostosuj rozmiar processed_canvas do rozmiaru przetworzonego obrazu
     processed_canvas.config(width=scaled_image.width, height=scaled_image.height)
     processed_canvas.create_image(scaled_image.width / 2, scaled_image.height / 2, image=tk_rotated_image)
     processed_canvas.image = tk_rotated_image
@@ -59,7 +67,7 @@ def rotate_image(img, angle):
 
 # Create the main window
 root = tk.Tk()
-root.title("Najblizszy sasiad")
+root.title("Najbliższy sąsiad")
 
 # Create two Canvas widgets for original and processed images
 original_canvas = tk.Canvas(root)
@@ -76,9 +84,11 @@ scale_slider.pack()
 rotation_slider = tk.Scale(root, from_=0, to=360, orient=tk.HORIZONTAL, label="Rotation", command=lambda val: update_image())
 rotation_slider.pack()
 
-# Load image button
+# Load and save image buttons
 load_button = tk.Button(root, text="Load Image", command=load_image)
 load_button.pack()
+save_button = tk.Button(root, text="Save Image", command=save_image)
+save_button.pack()
 
 # Start the GUI event loop
 root.mainloop()

@@ -4,7 +4,7 @@ import os
 #Wykonuje operacje na obrazie wszystkimi trzema algorytmami interpolacji
 
 # Stałe dla skalowania i obrotu
-SCALE_FACTOR = 3
+SCALE_FACTOR = 0.3
 ROTATION_ANGLE = 0
 
 # Folder do zapisywania obrazów
@@ -31,10 +31,10 @@ def process_and_concatenate_images(file_path):
     # Zapisz połączony obraz
     if not os.path.exists(OUTPUT_FOLDER):
         os.makedirs(OUTPUT_FOLDER)
-    output_path = os.path.join(OUTPUT_FOLDER, 'concatenated_image.jpg')
+    output_path = os.path.join(OUTPUT_FOLDER, 'processed_images/concatenated_image.jpg')
     cv2.imwrite(output_path, concatenated_image)
     print(f"Połączony obraz został zapisany do: {output_path}")
 
 # Ścieżka do twojego obrazu
-file_path = 'pobrane.jpg'  # Zmień na ścieżkę do swojego obrazu
+file_path = 'processed_images/concatenated_image.jpg'  # Zmień na ścieżkę do swojego obrazu
 process_and_concatenate_images(file_path)
