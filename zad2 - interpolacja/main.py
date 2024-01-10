@@ -6,7 +6,6 @@ import os
 # Stałe dla skalowania i obrotu
 SCALE_FACTOR = 0.3
 ROTATION_ANGLE = 0
-
 # Folder do zapisywania obrazów
 OUTPUT_FOLDER = 'processed_images'
 
